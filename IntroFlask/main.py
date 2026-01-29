@@ -1,6 +1,13 @@
 from flask import Flask, render_template, request
+import math
+from flask import flash
+from flask_wtf.csrf import CSRFProtect
+import forms 
+
 
 app = Flask(__name__)
+app.secret_key='Clave secreta'
+csrf=CSRFProtect()
 
 @app.route('/')
 def index():
@@ -8,38 +15,35 @@ def index():
     lista = ['Juan', 'Karla', 'Miguel', 'Ana']
     return render_template('index.html', titulo=titulo, lista=lista)
 
-@app.route("/operaBas")
-def operas1():
-    return render_template("operaBas.html")
+#Ruta para usuarios
+@app.route("/usuarios", methods =["GET","POST"])
+def usuarios():
+    mat=0
+    nom=''
+    apa=''
+    ama=''
+    email=''
+    usuarios_class=forms.UserForm(request.form)
+    if request.method=='POST' and usuarios_class.validate():
+        mat=usuarios_class.matricula.data
+        nom=usuarios_class.nombre.data
+        apa=usuarios_class.apaterno.data
+        ama=usuarios_class.amaterno.data
+        email=usuarios_class.correo.data
 
-@app.route("/resultado", methods=("GET", "POST"))
-def resultado():
-    n1 = float(request.form.get("n1"))
-    n2 = float(request.form.get("n2"))
-    operacion = request.form.get("operacion")
-
-
-    if operacion == "dividir":
-        if n2 == 0:
-            return "Error: no se puede dividir entre cero"
-        resultado = n1 / n2
-
-    elif operacion == "restar":
-        resultado = n1 - n2
-
-    elif operacion == "sumar":
-        resultado = n1 + n2
-
-    elif operacion == "multiplicar":
-        resultado = n1 * n2
-
-    else:
-        return "Operación no válida"
-
-    return f"El resultado es: {resultado}"
-
-
+        mensaje='Bienvenido {}'.format(nom)
+        flash(mensaje)
+        
     
+    return render_template("usuarios.html",
+                           form=usuarios_class, 
+                           mat = mat,
+                           nom=nom,
+                           apa=apa,
+                           ama=ama,
+                           email=email
+                           )
+
 @app.route('/formulario')
 def formulario():
     return render_template("formularios.html")
@@ -47,6 +51,10 @@ def formulario():
 @app.route('/reportes')
 def reportes():
     return render_template("reportes.html")
+
+@app.route('/alumnos')
+def alumnos():
+    return render_template("alumnos.html")
 
 @app.route('/hola')
 def hola():
@@ -85,5 +93,95 @@ def operas():
         </form>
     '''
 
+@app.route("/operasBas", methods =["GET","POST"])
+def operas1():
+    n1=0
+    n2=0
+    res =0
+    if request.method == "POST":
+        n1 = request.form.get("n1")
+        n2 = request.form.get("n2")
+        res = float(n1)+float(n2)
+    return render_template("operaBas.html",n1=n1,n2=n2,res=res)
+    
+
+@app.route("/resultado", methods=["GET","POST"])
+def resultado():
+    n1 = float(request.form.get("n1"))
+    n2 = float(request.form.get("n2"))
+    op = request.form.get("operacion")
+
+    if op == "suma":
+        return f"La suma es: {n1 + n2}"
+    if op == "resta":
+        return f"La resta es: {n1 - n2}"
+    if op == "multiplicacion":
+        return f"La multiplicación es: {n1 * n2}"
+    if op == "division":
+        return f"La división es: {n1 / n2}"
+
+@app.route("/distancia", methods=["GET", "POST"])
+def distancia():
+    resultado = None
+
+    if request.method == "POST":
+        x1 = float(request.form.get("x1"))
+        y1 = float(request.form.get("y1"))
+        x2 = float(request.form.get("x2"))
+        y2 = float(request.form.get("y2"))
+
+        resultado = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
+    return render_template("distancia.html", resultado=resultado)
+
+
+@app.route("/cine", methods=["GET", "POST"])
+def cinepolis():
+    total = None
+    mensaje = ""
+        
+    if request.method == "POST":
+        nombre = request.form.get("nombre")
+        compradores = int(request.form.get("compradores"))
+        boletos = int(request.form.get("boletos"))
+        tarjeta = request.form.get("tarjeta")
+
+        precio_boleto = 12
+        
+        #Aqui se hace el calculo de los compradores y los boletos (se permite comprar 7
+        #por comprador),o sea si son 7 compradores se le permite comprar 49 boletos, 
+        #entonces se almacena en la variable max_boletos
+        max_boletos = compradores * 7
+
+        if boletos > max_boletos:
+            mensaje = f"No se pueden comprar más de {max_boletos} boletos"
+        else:
+            subtotal = boletos * precio_boleto
+
+            #Aqui se realiza el calculo en cuestion de cuantos boletos se compran
+            #si son mayor o igua a 6 se le hace el 15%, si soon mayor o igula que 
+            #3 son el 10%
+            if boletos >= 6:
+                descuento = 0.15
+            elif boletos >= 3:
+                descuento = 0.10
+            else:
+                descuento = 0
+
+            total = subtotal - (subtotal * descuento)
+
+            #Aqui se realiza el calculo en caso de que si tenga la tarjeta
+            #se le aplica el 10% de descuento, en caso contrario solo se hace
+            #el calculo de los boletos
+            if tarjeta == "si":
+                total = total - (total * 0.10)
+
+    #Aqui es donde regresa el costo al html 
+    return render_template("cinepolis.html", total=total, mensaje=mensaje)
+
+
+
+
 if __name__ == '__main__':
+    csrf.init_app(app)    #Con este se bloquean los vinculos
     app.run(debug=True)

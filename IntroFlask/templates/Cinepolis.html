@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cinépolis</title>
+
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background-color: #0b3c78;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* CENTRADO INFALIBLE */
+        .centrado {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* PANEL */
+        .panel {
+            background-color: #114b8b;
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 500px;
+        }
+
+        .titulo {
+            font-weight: bold;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .seccion {
+            border: 1px solid #ffffff;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-procesar {
+            background-color: #ffd200;
+            font-weight: bold;
+        }
+
+        label {
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="centrado">
+
+        <div class="panel">
+
+            <div class="titulo">Cinépolis</div>
+
+            <form method="POST">
+
+                <div class="seccion">
+                    <div class="row mb-2 align-items-center">
+                        <div class="col-5">
+                            <label>Nombre</label>
+                        </div>
+                        <div class="col-7">
+                            <input type="text" name="nombre" class="form-control form-control-sm" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2 align-items-center">
+                        <div class="col-5">
+                            <label>Cantidad de compradores</label>
+                        </div>
+                        <div class="col-7">
+                            <input type="number" name="compradores" class="form-control form-control-sm" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2 align-items-center">
+                        <div class="col-5">
+                            <label>Tarjeta CINECO</label>
+                        </div>
+                        <div class="col-7">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tarjeta" value="si" checked>
+                                <label class="form-check-label">Sí</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tarjeta" value="no">
+                                <label class="form-check-label">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2 align-items-center">
+                        <div class="col-5">
+                            <label>Cantidad de boletos</label>
+                        </div>
+                        <div class="col-7">
+                            <input type="number" name="boletos" class="form-control form-control-sm" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="seccion">
+                    <div class="row align-items-center">
+                        <div class="col-5">
+                            <label>Total a pagar</label>
+                        </div>
+                        <div class="col-7">
+                            <input type="text" class="form-control form-control-sm" value="{{ total if total else '' }}"
+                                readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-procesar btn-sm me-2">
+                        Procesar
+                    </button>
+                    <button type="reset" class="btn btn-light btn-sm">
+                        Salir
+                    </button>
+                </div>
+
+                {% if mensaje %}
+                <div class="alert alert-danger mt-3 text-center p-2">
+                    {{ mensaje }}
+                </div>
+                {% endif %}
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
